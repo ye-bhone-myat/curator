@@ -1,1 +1,1 @@
-# curator
+# Project Curator
