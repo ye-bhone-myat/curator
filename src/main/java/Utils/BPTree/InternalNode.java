@@ -1,15 +1,10 @@
 package Utils.BPTree;
 
-public class InternalNode extends Node {
+class InternalNode extends Node {
 	Node[] children;
-	public InternalNode(){
+	InternalNode(){
 		super();
 		children = new Node[BRANCHING_FACTOR];
-	}
-
-	@Override
-	Node insert(String key) {
-		return null;
 	}
 
 	void add(String key){
@@ -19,5 +14,6 @@ public class InternalNode extends Node {
 			--i;
 		}
 		keys[i] = key;
+		++ size;
 	}
 }

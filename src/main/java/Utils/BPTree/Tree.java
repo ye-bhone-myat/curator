@@ -6,92 +6,100 @@ public class Tree implements Constants {
 
 	private Node root;
 
-	public Node search(String key) {
-		return tree_search(key, root);
+	public Tree(){
+		root = new LeafNode();
 	}
 
-	private Node tree_search(String key, Node node) {
-		if (node instanceof LeafNode) {
-			return node;
-		} else {
+	public LeafNode search(String key, Node node) {
+		if (!(node instanceof LeafNode)) {
 			int i = node.size;
 			do {
 				--i;
 			} while (key.compareTo(node.keys[i]) < 0);
 			++i;
-			return tree_search(key, ((InternalNode) node).children[i]);
-		}
-	}
-
-	public void insert(String key, long value) {
-
-	}
-
-	public Node add(Node node, String key, long value) {
-		if (node instanceof LeafNode) {
-			if (node.size < BRANCHING_FACTOR - 1) {
-				for (int i = node.size; key.compareTo(node.keys[i - 1]) < 0; --i) {
-					node.keys[i] = node.keys[i - 1];
-				}
-				node.keys[node.size] = key;
-				++node.size;
-				return node;
-			} else {
-				InternalNode parent = new InternalNode();
-				LeafNode sibling = new LeafNode();
-				sibling.next = ((LeafNode) node).next;
-				((LeafNode) node).next = sibling;
-				int mid = (MAX_SIZE % 2 == 0) ? (MAX_SIZE / 2) : (MAX_SIZE - 1) / 2;
-
-				int keyIndex = MAX_SIZE;
-				do {
-					-- keyIndex;
-				} while (keyIndex >= 0 && key.compareTo(node.keys[keyIndex]) < 0);
-				++ keyIndex;
-
-
-				for (int i = mid; i < MAX_SIZE; ++i) {
-					sibling.keys[i - mid] = node.keys[i];
-					sibling.pointers[i - mid] = ((LeafNode) node).pointers[i];
-				}
-				node.size = (int) Math.floor(MAX_SIZE/2);
-				sibling.size = (int) Math.ceil(MAX_SIZE/2);
-
-				if (keyIndex < mid) {
-					// add to node
-				} else {
-					// add to sibling
-				}
-
-				// add to parent
-				return parent;
-			}
+			return search(key, ((InternalNode) node).children[i]);
 		} else {
-			InternalNode internal = (InternalNode) node;
-			int i = BRANCHING_FACTOR;
-			do{
-				-- i;
-			}while (i >= 0 && key.compareTo(internal.keys[i]) < 0);
-			++ i;
-			Node result = add(internal.children[i], key, value);
-			if (result instanceof LeafNode){
-				internal.children[i] = result;
-				return internal;
-			}
+			return (LeafNode) node;
 		}
 	}
 
-	void addToLeaf(LeafNode node, String key, long value){
-		//TODO: figure out where to update the size of Nodes
+	public void add(String key, long value) {
+		if (!root.hasSpace()) {
+			InternalNode newRoot = new InternalNode();
+			LeafNode right = new LeafNode();
+			LeafNode left = (LeafNode) root;    // might cause null pointer
+			right.parent = left.parent = newRoot;
+			left.next = right;
+
+			int mid = (MAX_SIZE % 2 == 0) ? (MAX_SIZE / 2) : (MAX_SIZE - 1) / 2;
+
+			for (int i = mid; i < MAX_SIZE; ++i) {
+				left.keys[i] = right.keys[i - mid];
+				left.pointers[i] = right.pointers[i - mid];
+			}
+
+			left.size = mid;
+			right.size = (MAX_SIZE % 2 == 0) ? (mid) : (mid + 1);
+
+			root = newRoot;    // might cause null pointer
+		}
+
+		LeafNode target = search(key, root);
+
+		if (target.hasSpace()) {
+			int index = target.size;
+			while (key.compareTo(target.keys[index - 1]) < 0) {
+				target.keys[index] = target.keys[index - 1];
+				target.pointers[index] = target.pointers[index - 1];
+				--index;
+			}
+			target.keys[index] = key;
+			target.pointers[index] = value;
+		} else {
+			split(target);
+			add(key, value);
+		}
 	}
 
-	void addToInternal(InternalNode node, String key){
+	/**
+	 * @param node Node to be split
+	 */
+	// might not need a return
+	private void split(Node node) {
+
+		if (!node.parent.hasSpace()) {
+			split(node.parent);
+		}
+
+		// calculate midpoint
+		int mid = (MAX_SIZE % 2 == 0) ? (MAX_SIZE / 2) : (MAX_SIZE - 1) / 2;
+
+		if (node instanceof LeafNode) {
+			LeafNode left = (LeafNode) node;
+			LeafNode right = new LeafNode();
+			right.parent = left.parent;
+			right.next = left.next;
+			left.next = right;
+			for (int i = mid; i < MAX_SIZE; ++i) {
+				left.keys[i] = right.keys[i - mid];
+				left.pointers[i] = right.pointers[i - mid];
+			}
+
+			left.size = mid;
+			right.size = (MAX_SIZE % 2 == 0) ? (mid) : (mid + 1);
+		} else {
+			InternalNode left = (InternalNode) node;
+			InternalNode right = new InternalNode();
+			right.parent = left.parent;
+			for (int i = mid; i < MAX_SIZE; ++i) {
+				left.keys[i] = right.keys[i - mid];
+				left.children[i] = right.children[i - mid];
+			}
+
+			left.size = mid;
+			right.size = (MAX_SIZE % 2 == 0) ? (mid) : (mid + 1);
+		}
 
 	}
-
-	void addKey(Node node, String key){
-
-	}
-
 
 }

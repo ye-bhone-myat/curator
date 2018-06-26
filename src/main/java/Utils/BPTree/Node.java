@@ -5,12 +5,18 @@ import Utils.Constants;
 abstract class Node implements Constants{
     String[] keys;
     int size;
+    InternalNode parent;
 
-    public Node(){
+    Node(){
         size = 0;
         keys = new String[BRANCHING_FACTOR - 1];
     }
 
-    abstract Node insert(String key);
+    boolean hasSpace(){
+        return size < MAX_SIZE;
+    }
+
+//    abstract Node insert(String key);
+
 
 }
