@@ -1,4 +1,4 @@
-package Utils.BPTree;
+package Utils.BPlusTree;
 
 import Utils.Constants;
 
@@ -14,6 +14,10 @@ abstract class Node implements Constants{
 
     boolean hasSpace(){
         return size < MAX_SIZE;
+    }
+
+    boolean isEmpty(){
+        return size == 0;
     }
 
 //    abstract Node insert(String key);

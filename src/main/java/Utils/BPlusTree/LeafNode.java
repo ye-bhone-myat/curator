@@ -1,4 +1,4 @@
-package Utils.BPTree;
+package Utils.BPlusTree;
 
 import static java.util.Arrays.fill;
 

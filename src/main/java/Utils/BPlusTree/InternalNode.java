@@ -1,4 +1,4 @@
-package Utils.BPTree;
+package Utils.BPlusTree;
 
 class InternalNode extends Node {
 	Node[] children;
