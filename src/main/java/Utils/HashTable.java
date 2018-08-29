@@ -100,7 +100,7 @@ public class HashTable<E> implements Serializable {
 			index = nextIndex;
 		}
 		--count;
-		if (count < 0.5 * size) {
+		if (count < 0.4 * size) {
 			modify(SHRINK);
 		}
 		return removed;
@@ -171,15 +171,16 @@ public class HashTable<E> implements Serializable {
 		} else if (m == SHRINK) {
 			size /= 2;
 		}
-		HashElement[] newTable = new HashElement[size];
-		for (HashElement element : table) {
+		HashElement[] oldTable = table;
+		table = new HashElement[size];
+		for (HashElement element : oldTable) {
 			if (element != null) {
 				String key = element.getKey();
 				int hashCode = this.findSlot(key);
-				newTable[hashCode] = element;
+				table[hashCode] = element;
 			}
 		}
-		table = newTable;
+//		table = newTable;
 	}
 
 
