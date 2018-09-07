@@ -1,5 +1,7 @@
 package Utils.BPlusTree;
 
+import Objects.Source;
+
 import static java.util.Arrays.fill;
 
 /**
@@ -7,11 +9,12 @@ import static java.util.Arrays.fill;
  */
 class LeafNode extends Node {
 	LeafNode next;
-	long[] pointers;
+	Source[] pointers;
 
 	LeafNode() {
 		super();
-		pointers = new long[keys.length];
-		fill(pointers, -1);
+		pointers = new Source[keys.length];
+		fill(pointers, null);
 	}
+
 }

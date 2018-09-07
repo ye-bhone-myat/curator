@@ -2,16 +2,19 @@ package Utils;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static Utils.HashTable.Modifications.GROW;
 import static Utils.HashTable.Modifications.SHRINK;
 
 
 public class HashTable<E> implements Serializable {
+	private static final long serialVersionUID = 1425567225662528520L;
 	private int size = 4;
-	private HashElement[] table;
+	private HashElement<E>[] table;
 	private int count;
 
+	// @SuppressWarnings("unchecked")
 	public HashTable() {
 		table = new HashElement[size];
 		count = 0;
@@ -140,7 +143,7 @@ public class HashTable<E> implements Serializable {
 	 * @return the element associated with the <code>key</code>
 	 * @throws NoSuchElementException
 	 */
-	private E getElement(String key) throws NoSuchElementException{
+	E getElement(String key) throws NoSuchElementException{
 		if (table[findSlot(key)] == null) {
 			throw new NoSuchElementException();
 		}
@@ -152,11 +155,15 @@ public class HashTable<E> implements Serializable {
 	 * @param key the key used to find the slot with
 	 * @return the appropriate slot for the key
 	 */
-	private int findSlot(String key) {
+	int findSlot(String key) {
 		int index = key.hashCode() % size;
+		if (index < 0){
+			index *= (-1);
+		}
 		while (table[index] != null && !table[index].getKey().equalsIgnoreCase(key)) {
 			index = (index + 1) % size;
 		}
+
 		return index;
 	}
 
@@ -165,22 +172,28 @@ public class HashTable<E> implements Serializable {
 	 * @param m <code>GROW</code> or <code>SHRINK</code>
 	 * @see Modifications
 	 */
-	private void modify(Modifications m) {
+	@SuppressWarnings("unchecked")
+	void modify(Modifications m) {
 		if (m == GROW) {
 			size *= 2;
 		} else if (m == SHRINK) {
 			size /= 2;
 		}
-		HashElement[] oldTable = table;
+		HashElement<E>[] oldTable = table;
 		table = new HashElement[size];
-		for (HashElement element : oldTable) {
+		for (HashElement<E> element : oldTable) {
 			if (element != null) {
 				String key = element.getKey();
 				int hashCode = this.findSlot(key);
 				table[hashCode] = element;
 			}
 		}
-//		table = newTable;
+	}
+
+	public List<E> getList(){
+		return Arrays.asList(table).stream().filter(s -> s != null)
+				.map(s -> s.object)
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 
@@ -188,8 +201,9 @@ public class HashTable<E> implements Serializable {
 		GROW, SHRINK
 	}
 
-	private class HashElement<T> implements Comparable, Serializable {
+	class HashElement<T> implements Comparable<HashElement<T>>, Serializable {
 
+		private static final long serialVersionUID = 1290435324407032917L;	// added to meet Java Object Serialization Specification
 		final T object;
 		private final String key;
 		private int value;
@@ -214,9 +228,8 @@ public class HashTable<E> implements Serializable {
 			return value;
 		}
 
-		@SuppressWarnings("unchecked")
-		public int compareTo(Object o) {
-			HashElement other = (HashElement) o;
+		public int compareTo(HashElement<T> o) {
+			HashElement<T> other = o;
 			return this.getKey().compareTo(other.getKey());
 		}
 	}

@@ -1,16 +1,23 @@
-import Utils.HashTable;
+import Crawler.Crawler;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+
 
 public class Main {
 	public static void main(String args[]) {
-		HashTable<String> hashTable = new HashTable<>();
-		for (int i = 0; i < 16; i++) {
-			hashTable.add(i + "");
+		Crawler crawler = new Crawler();
+		File seed = new File("seed.txt");
+		try {
+			crawler.add(seed);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		hashTable.remove(new String[] {"2", "3", "4", "5", "6", "7", "8", "0", "1"});
-
-//		ArrayList<String> strings = new ArrayList<>();
-//		strings.add("s");
+		try {
+			crawler.crawl(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println();
 	}
 }

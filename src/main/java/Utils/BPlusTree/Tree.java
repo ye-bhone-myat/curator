@@ -1,6 +1,6 @@
 package Utils.BPlusTree;
 
-
+import Objects.Source;
 import Utils.Constants;
 
 public class Tree implements Constants {
@@ -13,32 +13,38 @@ public class Tree implements Constants {
 	}
 
 	/**
-	 * Returns the long offset value associated with the <code>key</code>. If no such key is stored
-	 * in the tree, a value of <code>-1</code> is returned.
+	 * Returns the long offset value associated with the <code>key</code>. If no
+	 * such key is stored in the tree, a value of <code>-1</code> is returned.
+	 * 
 	 * @param key the key to search for
-	 * @return the offset value paired with the <code>key</code> as a <code>long</code>, or <code>-1</code>
+	 * @return the offset value paired with the <code>key</code> as a
+	 *         <code>long</code>, or <code>-1</code>
 	 */
-	public long search(String key) {
+	public Source search(String key) {
 		LeafNode node = tree_search(key, root);
-		if (node.isEmpty()) return -1;
+		if (node.isEmpty())
+			return null;
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (key.equals(node.keys[i])) {
 				return node.pointers[i];
 			}
 		}
-		return -1;
+		return null;
 	}
 
 	/**
-	 * Searches the tree starting at <code>node</code>, for a <code>LeafNode</code> object. If the tree already
-	 * contains <code>key</code>, this method returns the <code>LeafNode</code> object that contains said
-	 * <code>key</code>. Otherwise, this method returns the <code>LeafNode</code> object to which <code>key</code>
-	 * would belong to, should <code>key</code> be added.
-	 * @param key the key to search for
+	 * Searches the tree starting at <code>node</code>, for a <code>LeafNode</code>
+	 * object. If the tree already contains <code>key</code>, this method returns
+	 * the <code>LeafNode</code> object that contains said <code>key</code>.
+	 * Otherwise, this method returns the <code>LeafNode</code> object to which
+	 * <code>key</code> would belong to, should <code>key</code> be added.
+	 * 
+	 * @param key  the key to search for
 	 * @param node the <code>Node</code> object to start the search from
-	 * @return the <code>LeafNode</code> that <code>key</code> belongs to, or should belong to
+	 * @return the <code>LeafNode</code> that <code>key</code> belongs to, or should
+	 *         belong to
 	 */
-	private LeafNode tree_search(String key, Node node) {
+	private synchronized LeafNode tree_search(String key, Node node) {
 		if (node instanceof InternalNode) {
 			int i = node.size - 1;
 			while (i >= 0 && key.compareTo(node.keys[i]) < 0) {
@@ -52,18 +58,19 @@ public class Tree implements Constants {
 	}
 
 	public int getSize() {
-		return size;
+			return size;
 	}
 
 	/**
 	 * Adds an offset <code>value</code> to the tree using the <code>key</code>
-	 * @param key the key to be stored with the offset value
+	 * 
+	 * @param key   the key to be stored with the offset value
 	 * @param value the offset value to be stored
 	 */
-	public void add(String key, long value) {
+	public void add(String key, Source value) {
 		LeafNode target = tree_search(key, root);
 		if (target.hasSpace()) {
-			//add
+			// add
 			int index = target.size;
 			while (index > 0 && key.compareTo(target.keys[index - 1]) < 0) {
 				target.keys[index] = target.keys[index - 1];
@@ -74,8 +81,9 @@ public class Tree implements Constants {
 			target.pointers[index] = value;
 			target.size += 1;
 			++size;
+			System.out.println("added " + key);
 		} else {
-			//split
+			// split
 			split(target);
 			// call self
 			add(key, value);
@@ -83,13 +91,19 @@ public class Tree implements Constants {
 	}
 
 	/**
-	 * Splits the given <code>node</code>, and grows the tree from the root where necessary.<br>
-	 * The way the <code>keys</code> and <code>children</code> and/or <code>pointers</code> are separated between
-	 * the split <code>Node</code> objects is determined by <code>BRANCHING_FACTOR</code> in {@link Constants}
-	 * <i>*For future reference, the size of a <code>Node</code> object is the size of
-	 * its <code>keys</code> array.</i>
-	 * @param node the <code>LeafNode</code> or the <code>InterNode</code> to be split
+	 * Splits the given <code>node</code>, and grows the tree from the root where
+	 * necessary.<br>
+	 * The way the <code>keys</code> and <code>children</code> and/or
+	 * <code>pointers</code> are separated between the split <code>Node</code>
+	 * objects is determined by <code>BRANCHING_FACTOR</code> in {@link Constants}
+	 * <i>*For future reference, the size of a <code>Node</code> object is the size
+	 * of its <code>keys</code> array.</i>
+	 * 
+	 * @param node the <code>LeafNode</code> or the <code>InterNode</code> to be
+	 *             split
 	 */
+
+	@SuppressWarnings("unused")
 	private void split(Node node) {
 		// if target is root
 		if (node.parent == null) {
@@ -109,7 +123,7 @@ public class Tree implements Constants {
 					left.next.keys[i - mid] = left.keys[i];
 					left.next.pointers[i - mid] = left.pointers[i];
 					left.keys[i] = null;
-					left.pointers[i] = -1;
+					left.pointers[i] = null;
 				}
 
 				left.size = mid;
@@ -163,7 +177,7 @@ public class Tree implements Constants {
 					right.keys[i - mid] = left.keys[i];
 					right.pointers[i - mid] = left.pointers[i];
 					left.keys[i] = null;
-					left.pointers[i] = -1;
+					left.pointers[i] = null;
 				}
 
 				left.size = mid - 1;

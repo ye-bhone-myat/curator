@@ -16,4 +16,5 @@ class InternalNode extends Node {
 		keys[i] = key;
 		++ size;
 	}
+
 }
